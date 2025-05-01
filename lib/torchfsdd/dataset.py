@@ -54,15 +54,18 @@ class TorchFSDDGenerator:
                 try:
                     subprocess.call(['git', '-C', path, 'clone', REPOSITORY['url'], '--branch', version])
                     shutil.move(os.path.join(repo_path, 'recordings'), path)
-                    path = output_path
+
                 finally:
                     if os.path.isdir(repo_path):
                         shutil.rmtree(repo_path)
 
-        self.path = path
+
+
+        self.path = output_path
         self.transforms = transforms
         self.load_all = load_all
         self.args = args
+
         self.all_files = glob.glob(os.path.join(self.path, '*.wav'))
 
     def full(self):
@@ -210,29 +213,80 @@ class TorchFSDD(torch.utils.data.Dataset):
         self.files = files
         self.transforms = transforms
         self.args = args
-
-        get_audio = lambda file: torchaudio.load(file, **self.args)[0]
-        get_label = lambda file: int(os.path.basename(file)[0])
+        self.recordings = None
+        self.labels = None
+        self.load_all = load_all
 
         if load_all:
             self.recordings, self.labels = [], []
             for file in self.files:
-                self.recordings.append(get_audio(file))
-                self.labels.append(get_label(file))
+                self.recordings.append(self.get_audio(file))
+                self.labels.append(self.get_label(file))
 
-            def _load(self, index):
-                return self.recordings[index], self.labels[index]
-        else:
-            def _load(self, index):
-                file = self.files[index]
-                return get_audio(file), get_label(file)
 
-        setattr(self.__class__, '_load', _load)
+    def _load(self, index):
+        """Fetches the audio and corresponding label for a given index.
+        If the dataset is not loaded into memory, it loads the audio and label for the given index.
+        If the dataset is loaded into memory, it returns the preloaded audio and label for the given index.
+        Parameters
+        ----------
+        index: int
+            The index of the audio recording in the dataset.
+        Returns
+        -------
+        x: :class:`torch:torch.Tensor`
+            The 1D :class:`torch:torch.Tensor` of audio samples.
+        y: int
+            The label of the audio recording.
+        """
+
+        # If the dataset is not loaded into memory, load the audio and label for the given index
+        if self.recordings is None:
+            # If the dataset is not loaded into memory, load the audio and label for the given index
+            file = self.files[index]
+            return self.get_audio(file), self.get_label(file)
+
+        # If the dataset is loaded into memory, return the preloaded audio and label
+        # for the given index
+        return self.recordings[index], self.labels[index]
+
+    def get_audio(self, file):
+        """Fetches the audio recording for a given file.
+
+        Parameters
+        ----------
+        file: str
+            The path to the WAV audio recording.
+
+        Returns
+        -------
+        x: :class:`torch:torch.Tensor`
+            The 1D :class:`torch:torch.Tensor` of audio samples.
+        """
+        return torchaudio.load(file, **self.args)[0]
+
+    def get_label(self, file):
+        """Fetches the label for a given file.
+
+        Parameters
+        ----------
+        file: str
+            The path to the WAV audio recording.
+
+        Returns
+        -------
+        y: int
+            The label of the audio recording.
+        """
+        return int(os.path.basename(file)[0])
+
+
 
     def __len__(self):
         return len(self.files)
 
     def __getitem__(self, index):
+        print(f'index: {index}')
         # Fetch the audio and corresponding label
         x, y = self._load(index)
         x = x.flatten()
