@@ -56,24 +56,24 @@ setup(
     ],
     python_requires = '>=3.6',
     install_requires = install_requires,
-    extras_require = {
-        'torch': [
-            'torch>=1.8+cpu',
-            'torchaudio>=0.8+cpu'
-        ],
-        'dev': [
-            'torch>=1.8+cpu',
-            'torchaudio>=0.8+cpu',
-            'torchvision>=0.8',
-            'sphinx',
-            'numpydoc',
-            'sphinx_rtd_theme',
-            'sphinx-autobuild',
-            'm2r2',
-            'mistune==0.8.4',
-            'Jinja2<3.1',
-            'sphinx-version-warning',
-            'pytest'
-        ]
-    }
+    # extras_require = {
+    #     'torch': [
+    #         'torch>=1.8+cpu',
+    #         'torchaudio>=0.8+cpu'
+    #     ],
+    #     'dev': [
+    #         'torch>=1.8+cpu',
+    #         'torchaudio>=0.8+cpu',
+    #         'torchvision>=0.8',
+    #         'sphinx',
+    #         'numpydoc',
+    #         'sphinx_rtd_theme',
+    #         'sphinx-autobuild',
+    #         'm2r2',
+    #         'mistune==0.8.4',
+    #         'Jinja2<3.1',
+    #         'sphinx-version-warning',
+    #         'pytest'
+    #     ]
+    # }
 )

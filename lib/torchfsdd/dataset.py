@@ -49,14 +49,15 @@ class TorchFSDDGenerator:
         else:
             path = os.getcwd() if path is None else path
             repo_path = os.path.join(path, REPOSITORY['name'])
-
-            try:
-                subprocess.call(['git', '-C', path, 'clone', REPOSITORY['url'], '--branch', version])
-                shutil.move(os.path.join(repo_path, 'recordings'), path)
-                path = os.path.join(path, 'recordings')
-            finally:
-                if os.path.isdir(repo_path):
-                    shutil.rmtree(repo_path)
+            output_path = os.path.join(path, 'recordings')
+            if not os.path.isdir(output_path):
+                try:
+                    subprocess.call(['git', '-C', path, 'clone', REPOSITORY['url'], '--branch', version])
+                    shutil.move(os.path.join(repo_path, 'recordings'), path)
+                    path = output_path
+                finally:
+                    if os.path.isdir(repo_path):
+                        shutil.rmtree(repo_path)
 
         self.path = path
         self.transforms = transforms
