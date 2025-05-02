@@ -240,15 +240,16 @@ class TorchFSDD(torch.utils.data.Dataset):
             The label of the audio recording.
         """
 
-        # If the dataset is not loaded into memory, load the audio and label for the given index
-        if self.recordings is None:
-            # If the dataset is not loaded into memory, load the audio and label for the given index
-            file = self.files[index]
-            return self.get_audio(file), self.get_label(file)
 
         # If the dataset is loaded into memory, return the preloaded audio and label
         # for the given index
-        return self.recordings[index], self.labels[index]
+        if self.recordings is not None:
+            return self.recordings[index], self.labels[index]
+
+        # If the dataset is not loaded into memory, load the audio and label for the given index
+        file = self.files[index]
+        return self.get_audio(file), self.get_label(file)
+
 
     def get_audio(self, file):
         """Fetches the audio recording for a given file.
@@ -286,7 +287,6 @@ class TorchFSDD(torch.utils.data.Dataset):
         return len(self.files)
 
     def __getitem__(self, index):
-        print(f'index: {index}')
         # Fetch the audio and corresponding label
         x, y = self._load(index)
         x = x.flatten()
