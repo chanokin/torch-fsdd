@@ -1,4 +1,5 @@
-class TrimSilence:
+import torch
+class TrimSilence(torch.nn.Module):
     """Removes the silence at the beginning and end of the passed audio data.
 
     .. warning::
@@ -11,9 +12,11 @@ class TrimSilence:
     """
     def __init__(self, threshold):
         assert 0. <= threshold <= 1.
+        super(TrimSilence, self).__init__()
+
         self.threshold = threshold
 
-    def __call__(self, x):
+    def forward(self, x):
         """Applies the transformation.
 
         Parameters
